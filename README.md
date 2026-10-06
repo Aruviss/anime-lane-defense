@@ -1,6 +1,6 @@
-# ⚔️ Aether Valkyries: LF2 Edition (Battle Cats Style)
+# ⚔️ Battle Anime (Battle Cats Style)
 
-เกมต้นแบบแนว **Side-Scrolling Lane Defense (สไตล์ The Battle Cats)** ธีม **Little Fighter 2 (LF2) Anime Sprites** รันบนเบราว์เซอร์ได้ทันที ไม่ต้องติดตั้งโปรแกรมหรือไลบรารีเสริม
+เกมแนว **Side-Scrolling Lane Defense (สไตล์ The Battle Cats)** ธีม **Anime Jump Fighters & LF2** พร้อมระบบ Endless Stages และ Character Upgrades รันบนเบราว์เซอร์ได้ทันที
 
 ---
 
