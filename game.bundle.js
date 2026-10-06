@@ -2938,9 +2938,9 @@ class Game {
     resize() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        // Raise ground level so walking characters and bases are in full view above the enlarged unit deck
+        // Raise ground level so walking characters and bases are in full view above the unit deck
         const isShortScreen = this.canvas.height < 520;
-        this.groundY = Math.max(isShortScreen ? 200 : 320, this.canvas.height - (isShortScreen ? 160 : 250));
+        this.groundY = Math.max(isShortScreen ? 190 : 320, this.canvas.height - (isShortScreen ? 130 : 250));
         this.playerBase.y = this.groundY;
         this.enemyBase.y = this.groundY;
     }
@@ -2985,7 +2985,7 @@ class Game {
         const speedBtn = document.getElementById('speed-btn');
         speedBtn.addEventListener('click', () => {
             this.gameSpeed = this.gameSpeed === 1.0 ? 2.0 : 1.0;
-            speedBtn.innerText = `${this.gameSpeed}x Speed`;
+            speedBtn.innerText = this.gameSpeed === 2.0 ? '⚡ 2.0x' : '1.0x';
             speedBtn.classList.toggle('active', this.gameSpeed === 2.0);
         });
 
@@ -2994,11 +2994,19 @@ class Game {
         soundBtn.addEventListener('click', () => {
             sound.init();
             const muted = sound.toggleMute();
-            soundBtn.innerText = muted ? '🔇 Muted' : '🔊 Sound: ON';
+            soundBtn.innerText = muted ? '🔇 OFF' : '🔊 ON';
             if (!muted && !sound.bgmPlaying) {
                 sound.startBGM();
             }
         });
+
+        // Dismiss rotate hint button (for mobile portrait override)
+        const dismissRotateBtn = document.getElementById('dismiss-rotate-btn');
+        if (dismissRotateBtn) {
+            dismissRotateBtn.addEventListener('click', () => {
+                document.getElementById('rotate-hint')?.classList.add('dismissed');
+            });
+        }
 
         // Open upgrade modal from top HUD button
         const openUpgradeBtn = document.getElementById('open-upgrade-btn');

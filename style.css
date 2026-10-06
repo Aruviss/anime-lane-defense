@@ -14,6 +14,10 @@
     --bg-panel: rgba(14, 10, 26, 0.88);
     --border-panel: rgba(120, 95, 200, 0.5);
     --font-anime: 'Chakra Petch', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
 }
 
 * {
@@ -38,6 +42,7 @@ body, html {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    touch-action: manipulation;
 }
 
 #gameCanvas {
@@ -48,6 +53,7 @@ body, html {
     height: 100%;
     display: block;
     cursor: grab;
+    touch-action: none;
 }
 
 #gameCanvas:active {
@@ -59,14 +65,15 @@ body, html {
    ========================================================================== */
 #top-hud {
     position: absolute;
-    top: 14px;
-    left: 18px;
-    right: 18px;
+    top: max(8px, var(--safe-top));
+    left: max(10px, var(--safe-left));
+    right: max(10px, var(--safe-right));
     display: flex;
     justify-content: space-between;
     align-items: center;
     pointer-events: none;
     z-index: 20;
+    gap: 8px;
 }
 
 .hud-group {
@@ -562,24 +569,30 @@ body, html {
    ========================================================================== */
 #bottom-hud {
     position: absolute;
-    bottom: 10px;
+    bottom: max(6px, var(--safe-bottom));
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     pointer-events: none;
     z-index: 20;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding: 0 max(8px, var(--safe-right)) 0 max(8px, var(--safe-left));
 }
 
 #unit-deck {
     display: flex;
     gap: 8px;
     pointer-events: auto;
-    max-width: 98vw;
+    max-width: 100%;
     overflow-x: auto;
-    padding: 4px 6px;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    padding: 4px 10px;
     scrollbar-width: none;
 }
 
@@ -1392,17 +1405,38 @@ button, .unit-card {
     -webkit-tap-highlight-color: transparent;
 }
 
-#unit-deck {
-    -webkit-overflow-scrolling: touch;
-}
-
 #rotate-hint {
     display: none;
 }
 
-/* Orientation Hint for Mobile Portrait (under 768px in portrait) */
+#rotate-hint.dismissed {
+    display: none !important;
+}
+
+.btn-dismiss-rotate {
+    margin-top: 18px;
+    background: rgba(0, 240, 255, 0.12);
+    border: 1.5px solid #00f0ff;
+    color: #00f0ff;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    outline: none;
+}
+
+.btn-dismiss-rotate:active {
+    background: #00f0ff;
+    color: #08060f;
+    transform: scale(0.96);
+}
+
+/* Orientation Hint for Mobile Portrait */
 @media (max-width: 768px) and (orientation: portrait) {
-    #rotate-hint {
+    #rotate-hint:not(.dismissed) {
         position: fixed;
         top: 0;
         left: 0;
@@ -1425,41 +1459,43 @@ button, .unit-card {
 
     @keyframes pulsePhone {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+        50% { transform: scale(1.04); }
     }
 
     .rotate-phone-icon {
-        font-size: 52px;
-        margin-bottom: 16px;
+        font-size: 48px;
+        margin-bottom: 14px;
         filter: drop-shadow(0 0 12px #00f0ff);
     }
 
     .rotate-content h3 {
-        font-size: 21px;
+        font-size: 20px;
         color: #00f0ff;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         font-weight: 900;
         text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
     }
 
     .rotate-content p {
-        font-size: 13.5px;
+        font-size: 13px;
         color: #cfd8dc;
         line-height: 1.5;
     }
 }
 
-/* Mobile Landscape & Short Screens (< 520px height) */
-@media (max-height: 520px) {
-    #top-hud {
-        top: 6px;
-        left: 10px;
-        right: 10px;
+/* Medium & Narrow Screens (< 950px width) */
+@media (max-width: 950px) {
+    .minimap-container {
+        display: none !important; /* Hide radar on mobile screens to give top HUD room */
+    }
+
+    .control-hints {
+        display: none !important; /* PC hotkey hints hidden on touchscreen */
     }
 
     .mana-container {
-        width: 165px;
-        padding: 3px 8px;
+        width: clamp(110px, 16vw, 160px);
+        padding: 3px 6px;
     }
 
     .mana-title {
@@ -1470,34 +1506,38 @@ button, .unit-card {
         font-size: 10px;
     }
 
-    .mana-bar-bg {
-        height: 10px;
-    }
-
     .worker-btn {
-        padding: 4px 8px;
+        padding: 4px 7px;
         gap: 6px;
     }
 
     .worker-icon {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .worker-info span {
-        font-size: 11px;
+        font-size: 10.5px;
     }
 
     .worker-info small {
-        font-size: 10px;
+        font-size: 9.5px;
     }
 
     .cannon-btn {
-        width: 46px;
-        height: 46px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .cannon-icon {
+        font-size: 17px;
+    }
+
+    .cannon-label {
+        display: none;
     }
 
     .stage-display-card {
-        padding: 2px 10px;
+        padding: 2px 8px;
     }
 
     .stage-title {
@@ -1508,56 +1548,448 @@ button, .unit-card {
         display: none;
     }
 
-    .minimap-bar {
-        width: 90px;
-        height: 14px;
+    .shard-pill {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
+
+    .shard-label {
+        display: none;
+    }
+
+    .upgrade-hud-btn {
+        padding: 4px 8px;
+        font-size: 10.5px;
     }
 
     .tool-btn {
-        padding: 4px 8px;
-        font-size: 10px;
-    }
-
-    #bottom-hud {
-        bottom: 4px;
-        gap: 2px;
+        padding: 4px 7px;
+        font-size: 10.5px;
     }
 
     .unit-card {
-        width: 102px;
-        height: 120px;
-        padding: 4px;
+        width: 94px;
+        height: 114px;
+        padding: 3px;
         border-radius: 10px;
     }
 
     .card-icon {
-        height: 68px;
-        border-radius: 7px;
+        height: 62px;
     }
 
     .card-name {
-        font-size: 11px;
+        font-size: 10.5px;
     }
 
     .card-desc {
-        font-size: 8.5px;
+        display: none;
+    }
+
+    .card-num {
+        display: none;
     }
 
     .card-stats-preview {
         font-size: 8px;
     }
 
+    .character-upgrade-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile Landscape & Short Screens (< 520px height) */
+@media (max-height: 520px) {
+    #top-hud {
+        top: max(4px, var(--safe-top));
+        left: max(8px, var(--safe-left));
+        right: max(8px, var(--safe-right));
+        gap: 4px;
+    }
+
+    .hud-group {
+        gap: 6px;
+    }
+
+    .hud-center {
+        gap: 2px;
+    }
+
+    .mana-container {
+        width: clamp(90px, 14vw, 130px);
+        padding: 2px 6px;
+    }
+
+    .mana-spark {
+        font-size: 11px;
+    }
+
+    .mana-title {
+        font-size: 9px;
+    }
+
+    .mana-text {
+        font-size: 9.5px;
+    }
+
+    .mana-bar-bg {
+        height: 8px;
+    }
+
+    .worker-btn {
+        padding: 3px 6px;
+        gap: 4px;
+    }
+
+    .worker-icon {
+        font-size: 14px;
+    }
+
+    .worker-info span {
+        font-size: 10px;
+    }
+
+    .worker-info small {
+        font-size: 8.5px;
+    }
+
+    .cannon-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .cannon-icon {
+        font-size: 15px;
+    }
+
+    .cannon-label {
+        display: none;
+    }
+
+    .stage-display-card {
+        padding: 1px 8px;
+        border-radius: 8px;
+    }
+
+    .stage-title {
+        font-size: 12px;
+    }
+
+    .stage-badge-tag {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+
+    .stage-subtext {
+        display: none;
+    }
+
+    .shard-pill {
+        padding: 2px 6px;
+        font-size: 10px;
+    }
+
+    .shard-label {
+        display: none;
+    }
+
+    .upgrade-hud-btn {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+
+    .minimap-container {
+        display: none !important;
+    }
+
+    .tool-btn-group {
+        gap: 4px;
+    }
+
+    .tool-btn {
+        padding: 3px 6px;
+        font-size: 10px;
+        border-radius: 6px;
+    }
+
+    #bottom-hud {
+        bottom: max(2px, var(--safe-bottom));
+        gap: 2px;
+    }
+
+    #unit-deck {
+        padding: 2px 8px;
+        gap: 5px;
+    }
+
+    .unit-card {
+        width: 84px;
+        height: 102px;
+        padding: 2px;
+        border-radius: 8px;
+    }
+
+    .card-icon {
+        height: 55px;
+        border-radius: 6px;
+    }
+
+    .card-name {
+        font-size: 9.5px;
+        line-height: 1.1;
+        margin-top: 1px;
+    }
+
+    .card-desc {
+        display: none;
+    }
+
+    .card-num {
+        display: none;
+    }
+
+    .card-cost-tag {
+        font-size: 8.5px;
+        padding: 1px 3px;
+    }
+
+    .card-level-badge {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+
+    .card-stats-preview {
+        font-size: 7.5px;
+        gap: 3px;
+    }
+
     .control-hints {
-        display: none; /* Hide PC keyboard hints on mobile to save vertical space! */
+        display: none !important;
+    }
+
+    /* Upgrade Modal in Landscape */
+    .upgrade-modal-content {
+        max-height: 98vh;
+        width: 96vw;
+        border-radius: 12px;
+    }
+
+    .upgrade-modal-header {
+        padding: 6px 12px;
+    }
+
+    .upgrade-modal-header h2 {
+        font-size: 13px;
+    }
+
+    .stage-cleared-tag {
+        font-size: 8.5px;
+    }
+
+    .header-shards {
+        padding: 2px 8px;
+        gap: 4px;
+    }
+
+    .header-shards .shard-icon {
+        font-size: 14px;
+    }
+
+    .header-shards .shard-value {
+        font-size: 15px;
+    }
+
+    .header-shards .shard-unit {
+        display: none;
+    }
+
+    .close-modal-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 16px;
+    }
+
+    .upgrade-tabs {
+        padding: 0 10px;
+    }
+
+    .upgrade-tab {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .upgrade-tab-pane {
+        padding: 6px 10px;
+        max-height: calc(98vh - 105px);
     }
 
     .character-upgrade-grid {
         grid-template-columns: 1fr;
+        gap: 6px;
     }
 
-    .upgrade-modal-content {
-        max-height: 94vh;
-        width: 96vw;
+    .upgrade-hero-card {
+        padding: 4px 8px;
+        gap: 8px;
+        border-radius: 8px;
+    }
+
+    .hero-card-left {
+        width: 42px;
+        height: 46px;
+    }
+
+    .hero-name {
+        font-size: 11px;
+    }
+
+    .hero-sub {
+        display: none;
+    }
+
+    .hero-stats-row {
+        font-size: 8.5px;
+        gap: 6px;
+        margin-top: 1px;
+    }
+
+    .btn-hero-upgrade {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .fortress-upgrade-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .fortress-card {
+        padding: 8px 10px;
+        gap: 4px;
+    }
+
+    .fortress-title {
+        font-size: 11.5px;
+    }
+
+    .fortress-desc {
+        font-size: 9px;
+    }
+
+    .upgrade-modal-footer {
+        padding: 5px 12px;
+    }
+
+    .footer-credit {
+        font-size: 9px;
+    }
+
+    .btn-next-stage {
+        padding: 5px 14px;
+        font-size: 11px;
+        border-radius: 8px;
+    }
+
+    /* Game Over Modal in Landscape */
+    #game-over-modal .modal-content {
+        padding: 14px 20px;
+        border-radius: 12px;
+        max-width: 90vw;
+    }
+
+    #game-over-modal h1 {
+        font-size: 22px;
+        margin-bottom: 6px;
+    }
+
+    #game-over-modal p {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    #game-over-modal .btn-primary {
+        padding: 8px 20px;
+        font-size: 13px;
+    }
+}
+
+/* Portrait Fallback & Ultra-narrow (< 600px width) */
+@media (max-width: 600px) {
+    #top-hud {
+        flex-wrap: wrap;
+        row-gap: 4px;
+        top: max(4px, var(--safe-top));
+        left: max(6px, var(--safe-left));
+        right: max(6px, var(--safe-right));
+    }
+
+    .hud-center {
+        order: 1;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .hud-group:first-child {
+        order: 2;
+        flex: 1;
+        gap: 4px;
+    }
+
+    .hud-group:last-child {
+        order: 3;
+        gap: 4px;
+    }
+
+    .minimap-container {
+        display: none !important;
+    }
+
+    .mana-container {
+        width: 95px;
+        padding: 2px 4px;
+    }
+
+    .mana-spark {
+        display: none;
+    }
+
+    .worker-btn {
+        padding: 3px 5px;
+        gap: 4px;
+    }
+
+    .worker-icon {
+        font-size: 14px;
+    }
+
+    .cannon-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .cannon-label {
+        display: none;
+    }
+
+    .unit-card {
+        width: 80px;
+        height: 98px;
+        padding: 2px;
+    }
+
+    .card-icon {
+        height: 52px;
+    }
+
+    .card-name {
+        font-size: 9.5px;
+    }
+
+    .card-desc, .card-num, .control-hints {
+        display: none !important;
     }
 }
 
