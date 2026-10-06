@@ -1384,3 +1384,181 @@ body, html {
     text-shadow: 0 0 8px rgba(255, 213, 79, 0.5);
 }
 
+/* ==========================================================================
+   --- MOBILE RESPONSIVENESS & TOUCH OPTIMIZATION ---
+   ========================================================================== */
+button, .unit-card {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#unit-deck {
+    -webkit-overflow-scrolling: touch;
+}
+
+#rotate-hint {
+    display: none;
+}
+
+/* Orientation Hint for Mobile Portrait (under 768px in portrait) */
+@media (max-width: 768px) and (orientation: portrait) {
+    #rotate-hint {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle, rgba(20, 12, 40, 0.96), rgba(8, 5, 18, 0.99));
+        backdrop-filter: blur(14px);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 24px;
+    }
+
+    .rotate-content {
+        animation: pulsePhone 2s infinite ease-in-out;
+        max-width: 320px;
+    }
+
+    @keyframes pulsePhone {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .rotate-phone-icon {
+        font-size: 52px;
+        margin-bottom: 16px;
+        filter: drop-shadow(0 0 12px #00f0ff);
+    }
+
+    .rotate-content h3 {
+        font-size: 21px;
+        color: #00f0ff;
+        margin-bottom: 10px;
+        font-weight: 900;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+
+    .rotate-content p {
+        font-size: 13.5px;
+        color: #cfd8dc;
+        line-height: 1.5;
+    }
+}
+
+/* Mobile Landscape & Short Screens (< 520px height) */
+@media (max-height: 520px) {
+    #top-hud {
+        top: 6px;
+        left: 10px;
+        right: 10px;
+    }
+
+    .mana-container {
+        width: 165px;
+        padding: 3px 8px;
+    }
+
+    .mana-title {
+        font-size: 10px;
+    }
+
+    .mana-text {
+        font-size: 10px;
+    }
+
+    .mana-bar-bg {
+        height: 10px;
+    }
+
+    .worker-btn {
+        padding: 4px 8px;
+        gap: 6px;
+    }
+
+    .worker-icon {
+        font-size: 16px;
+    }
+
+    .worker-info span {
+        font-size: 11px;
+    }
+
+    .worker-info small {
+        font-size: 10px;
+    }
+
+    .cannon-btn {
+        width: 46px;
+        height: 46px;
+    }
+
+    .stage-display-card {
+        padding: 2px 10px;
+    }
+
+    .stage-title {
+        font-size: 13px;
+    }
+
+    .stage-subtext {
+        display: none;
+    }
+
+    .minimap-bar {
+        width: 90px;
+        height: 14px;
+    }
+
+    .tool-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    #bottom-hud {
+        bottom: 4px;
+        gap: 2px;
+    }
+
+    .unit-card {
+        width: 102px;
+        height: 120px;
+        padding: 4px;
+        border-radius: 10px;
+    }
+
+    .card-icon {
+        height: 68px;
+        border-radius: 7px;
+    }
+
+    .card-name {
+        font-size: 11px;
+    }
+
+    .card-desc {
+        font-size: 8.5px;
+    }
+
+    .card-stats-preview {
+        font-size: 8px;
+    }
+
+    .control-hints {
+        display: none; /* Hide PC keyboard hints on mobile to save vertical space! */
+    }
+
+    .character-upgrade-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .upgrade-modal-content {
+        max-height: 94vh;
+        width: 96vw;
+    }
+}
+
+

@@ -13,7 +13,8 @@ export class Game {
         // World parameters
         this.worldWidth = 2400;
         // Raise ground level so walking characters and bases are in full view above the enlarged unit deck
-        this.groundY = Math.max(320, window.innerHeight - 250);
+        const isShortScreen = window.innerHeight < 520;
+        this.groundY = Math.max(isShortScreen ? 200 : 320, window.innerHeight - (isShortScreen ? 160 : 250));
         this.gameSpeed = 1.0;
         this.isPaused = false;
         this.isGameOver = false;
@@ -111,7 +112,8 @@ export class Game {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         // Raise ground level so walking characters and bases are in full view above the enlarged unit deck
-        this.groundY = Math.max(320, this.canvas.height - 250);
+        const isShortScreen = this.canvas.height < 520;
+        this.groundY = Math.max(isShortScreen ? 200 : 320, this.canvas.height - (isShortScreen ? 160 : 250));
         this.playerBase.y = this.groundY;
         this.enemyBase.y = this.groundY;
     }
