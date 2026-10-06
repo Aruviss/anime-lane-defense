@@ -327,13 +327,26 @@ class SoundManager {
     init() {
         if (!this.ctx) {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
             this.ctx = new AudioContext();
             this.masterGain = this.ctx.createGain();
             this.masterGain.gain.value = 0.25;
             this.masterGain.connect(this.ctx.destination);
         }
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
+        this.ensureRunning();
+        // Force unlock iOS / iPadOS WebKit audio engine with silent buffer
+        try {
+            const buffer = this.ctx.createBuffer(1, 1, 22050);
+            const source = this.ctx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(this.ctx.destination);
+            source.start(0);
+        } catch (e) {}
+    }
+
+    ensureRunning() {
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
         }
     }
 
@@ -342,12 +355,17 @@ class SoundManager {
         if (this.masterGain) {
             this.masterGain.gain.value = this.isMuted ? 0 : 0.25;
         }
+        if (!this.isMuted) {
+            this.ensureRunning();
+        }
         return this.isMuted;
     }
 
     // Play Summon sound (bright chime)
     playSummon() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
         notes.forEach((freq, idx) => {
@@ -366,7 +384,9 @@ class SoundManager {
 
     // Play Slash / Melee attack sound
     playSlash() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -383,7 +403,9 @@ class SoundManager {
 
     // Play Magic Explosion / AoE sound
     playMagic() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         // High sparkle
         const osc = this.ctx.createOscillator();
@@ -414,7 +436,9 @@ class SoundManager {
 
     // Play Valkyrie Ultimate Cleave / Beam sound
     playHeavyHit() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -431,7 +455,9 @@ class SoundManager {
 
     // Play Cannon Laser blast
     playCannon() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         // Charge whoosh
         const osc = this.ctx.createOscillator();
@@ -451,7 +477,9 @@ class SoundManager {
 
     // Worker Level Up sound
     playUpgrade() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5
         notes.forEach((freq, idx) => {
@@ -470,7 +498,9 @@ class SoundManager {
 
     // Play Buzz / Deny sound
     playDeny() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -487,7 +517,9 @@ class SoundManager {
 
     // Boss Warning Sound / Shockwave
     playBossAlarm() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         for (let i = 0; i < 2; i++) {
             const osc = this.ctx.createOscillator();
@@ -506,7 +538,9 @@ class SoundManager {
 
     // Victory Fanfare
     playVictory() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const chords = [
             { f: 523.25, t: 0.0 }, // C5
@@ -530,7 +564,9 @@ class SoundManager {
 
     // Defeat sound
     playDefeat() {
-        if (this.isMuted || !this.ctx) return;
+        if (this.isMuted) return;
+        this.ensureRunning();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const notes = [440, 415.3, 392, 349.2];
         notes.forEach((freq, idx) => {
@@ -3057,6 +3093,17 @@ class Game {
 
     initEvents() {
         window.addEventListener('resize', () => this.resize());
+
+        // Global Unlock Audio on first touch/click (Essential for iOS / iPadOS Safari & Chrome)
+        const unlockAudio = () => {
+            sound.init();
+            if (!sound.bgmPlaying && !sound.isMuted) {
+                sound.startBGM();
+            }
+        };
+        ['touchstart', 'touchend', 'pointerdown', 'click', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, unlockAudio, { passive: true, once: true });
+        });
 
         // Keyboard hotkeys
         window.addEventListener('keydown', (e) => {

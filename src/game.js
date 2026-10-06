@@ -267,6 +267,17 @@ export class Game {
     initEvents() {
         window.addEventListener('resize', () => this.resize());
 
+        // Global Unlock Audio on first touch/click (Essential for iOS / iPadOS Safari & Chrome)
+        const unlockAudio = () => {
+            sound.init();
+            if (!sound.bgmPlaying && !sound.isMuted) {
+                sound.startBGM();
+            }
+        };
+        ['touchstart', 'touchend', 'pointerdown', 'click', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, unlockAudio, { passive: true, once: true });
+        });
+
         // Keyboard hotkeys
         window.addEventListener('keydown', (e) => {
             sound.init();
