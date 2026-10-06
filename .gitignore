@@ -1,0 +1,21 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Raw asset source dumps (not used in web runtime)
+sprite/
+tools/
+raw_sprites/
+สร้างแล้ว/
+*ҧ*
+DS _ DSi*.png
+naruto.png
+naruto_preview.png
+template.webp
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

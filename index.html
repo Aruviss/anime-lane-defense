@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aether Valkyries - Anime Lane Defense | Powered by Kasivat Tangsakul</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Canvas Rendering Layer -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Top HUD -->
+        <div id="top-hud">
+            <!-- Left: Worker Upgrade & Mana Gauge -->
+            <div class="hud-group">
+                <button id="worker-btn" class="worker-btn" title="อัปเกรดความเร็วและขีดจำกัดพลังงาน [Hotkey: E]">
+                    <div class="worker-icon">💠</div>
+                    <div class="worker-info">
+                        <span id="worker-lvl-text">Lv. 1 ⇡</span>
+                        <small id="worker-cost-text">💎 80</small>
+                    </div>
+                </button>
+
+                <div class="mana-container">
+                    <div class="mana-label-row">
+                        <span class="mana-title"><span class="mana-spark">⚡</span> AETHER ENERGY</span>
+                        <span id="mana-text" class="mana-text">100 / 300</span>
+                    </div>
+                    <div class="mana-bar-bg">
+                        <div id="mana-bar-fill" class="mana-bar-fill">
+                            <div class="mana-bar-shimmer"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aether Cannon Ultimate -->
+                <button id="cannon-btn" class="cannon-btn" title="ปืนใหญ่แสง Aether Cannon ยิงล้างสนาม [Hotkey: Space]">
+                    <div id="cannon-fill" class="cannon-fill"></div>
+                    <div class="cannon-core">
+                        <span class="cannon-icon">⚡</span>
+                        <small class="cannon-label">CANNON</small>
+                    </div>
+                    <div class="cannon-ring"></div>
+                </button>
+            </div>
+
+            <!-- Center: Stage Badge, Aether Shards & Upgrade Quick-Access -->
+            <div class="hud-center">
+                <div class="stage-display-card">
+                    <div class="stage-header">
+                        <span class="stage-glow-dot"></span>
+                        <span id="stage-text" class="stage-title">STAGE 1</span>
+                        <span class="stage-badge-tag">ENDLESS</span>
+                    </div>
+                    <div class="stage-subtext" id="stage-subtext">ประตูนรก Abyssal Gate (ระดับ 1)</div>
+                </div>
+
+                <div class="top-meta-row">
+                    <div class="shard-pill" title="Aether Shards: เพชรสำหรับอัปเกรดตัวละคร">
+                        <span class="shard-icon">💎</span>
+                        <span id="shard-count">150</span>
+                        <span class="shard-label">SHARDS</span>
+                    </div>
+                    <button id="open-upgrade-btn" class="upgrade-hud-btn" title="เปิดเมนูอัปเกรดตัวละคร [Hotkey: U]">
+                        <span class="btn-icon">⚡</span>
+                        <span class="btn-text">UPGRADE [U]</span>
+                    </button>
+                </div>
+                <div class="branding-header">
+                    ⚡ Powered by Kasivat Tangsakul
+                </div>
+            </div>
+
+            <!-- Right: Controls & Minimap -->
+            <div class="hud-group">
+                <!-- Minimap Camera View -->
+                <div class="minimap-container" title="แผนที่สนามรบทั้งหมด (คลิก/ลาก หรือกด A/D เพื่อเลื่อนกล้อง)">
+                    <div class="minimap-bar">
+                        <div class="minimap-pin player-pin" title="Sanctuary of Light (ฐานผู้เล่น)"></div>
+                        <div id="minimap-cam" class="minimap-cam"></div>
+                        <div class="minimap-pin enemy-pin" title="Abyssal Gate (ฐานศัตรู)"></div>
+                    </div>
+                    <div class="minimap-label">RADAR MAP</div>
+                </div>
+
+                <div class="tool-btn-group">
+                    <button id="speed-btn" class="tool-btn">1.0x Speed</button>
+                    <button id="sound-btn" class="tool-btn">🔊 Sound: ON</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boss Warning Banner -->
+        <div id="boss-warning" class="hidden">
+            ⚠️ WARNING! DEMON OVERLORD HAS AWAKENED! ⚠️
+        </div>
+
+        <!-- Bottom HUD: Unit Deck & Controls -->
+        <div id="bottom-hud">
+            <div id="unit-deck">
+                <!-- Dynamically injected unit cards -->
+            </div>
+            <div class="control-hints">
+                🎮 <b>วิธีควบคุม:</b> ลากเมาส์เลื่อนกล้อง (A/D) | เลข <b>1 - 8</b> ปล่อยยูนิต | <b>E</b> อัปเกรดพลังงาน | <b>Space</b> ยิงปืนใหญ่ | <b>U</b> อัปเกรดตัวละคร | ⚡ <b>Powered by Kasivat Tangsakul</b>
+            </div>
+        </div>
+
+        <!-- Stage Cleared & Character Upgrade Modal -->
+        <div id="upgrade-modal" class="hidden">
+            <div class="upgrade-modal-backdrop"></div>
+            <div class="upgrade-modal-content">
+                <div class="upgrade-modal-header">
+                    <div class="header-left">
+                        <div class="stage-cleared-tag" id="upgrade-modal-tag">STAGE 1 CLEARED!</div>
+                        <h2 id="upgrade-modal-title">UPGRADE ARSENAL / อัปเกรดตัวละคร & ฐานทัพ</h2>
+                    </div>
+                    <div class="header-shards">
+                        <span class="shard-icon">💎</span>
+                        <span id="modal-shard-count" class="shard-value">150</span>
+                        <span class="shard-unit">SHARDS</span>
+                    </div>
+                    <button id="close-upgrade-modal-btn" class="close-modal-btn" title="ปิดหน้าต่าง [Esc]">&times;</button>
+                </div>
+
+                <div class="upgrade-tabs">
+                    <button class="upgrade-tab active" id="tab-btn-units" data-tab="characters">👥 อัปเกรดตัวละครฮีโร่ (8 ตัว)</button>
+                    <button class="upgrade-tab" id="tab-btn-fortress" data-tab="fortress">🏰 ป้อม Sanctuary & ปืนใหญ่</button>
+                </div>
+
+                <!-- Characters Upgrade Grid -->
+                <div id="tab-characters" class="upgrade-tab-pane active">
+                    <div class="character-upgrade-grid" id="character-upgrade-grid">
+                        <!-- Dynamically populated 8 characters -->
+                    </div>
+                </div>
+
+                <!-- Fortress Upgrade Grid -->
+                <div id="tab-fortress" class="upgrade-tab-pane hidden">
+                    <div class="fortress-upgrade-grid" id="fortress-upgrade-grid">
+                        <!-- Fortress upgrades -->
+                    </div>
+                </div>
+
+                <div class="upgrade-modal-footer">
+                    <div class="footer-credit">
+                        ⚡ Powered by <b>Kasivat Tangsakul</b>
+                    </div>
+                    <button id="next-stage-btn" class="btn-next-stage">
+                        <span>🚀 ลุยด่านต่อไป <b id="next-stage-num-text">STAGE 2</b> ➔</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="game-over-modal" class="hidden">
+            <div class="modal-content">
+                <h1 id="game-over-title">VICTORY!</h1>
+                <p id="game-over-desc">ยินดีด้วย! คุณสามารถพิชิตกองทัพแห่งความมืดได้สำเร็จ!</p>
+                <div id="game-over-stage-record" class="game-over-stage-record"></div>
+                <div class="modal-credit">⚡ Powered by <b>Kasivat Tangsakul</b></div>
+                <button id="restart-btn" class="btn-primary">เล่นใหม่อีกครั้ง ↺</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Script (Universal Bundle) -->
+    <script src="./game.bundle.js"></script>
+</body>
+</html>
